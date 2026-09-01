@@ -12,7 +12,6 @@ import {
   Sparkles,
   ShieldCheck,
   Award,
-  Clock,
   Instagram,
   RefreshCw,
   Building2,
@@ -31,7 +30,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CandidateRegistration, Language, LocationState } from '../types';
-import { COURSES, OCCUPATIONS, REASONS_FOR_JOINING, BATCH_TIMINGS, QUALIFICATIONS, ORG_DETAILS } from '../data/coursesData';
+import { COURSES, OCCUPATIONS, REASONS_FOR_JOINING, QUALIFICATIONS, ORG_DETAILS } from '../data/coursesData';
 import { CameraCaptureModal } from './CameraCaptureModal';
 import { saveCandidate, generateRegistrationNumber } from '../utils/storage';
 
@@ -148,9 +147,8 @@ export const AdmissionForm: React.FC<AdmissionFormProps> = ({
   const [pincode, setPincode] = useState('444101');
   const [instagramId, setInstagramId] = useState('');
 
-  // Form Fields - Step 3: Course Selection, Batch, Direct Photo Snap
+  // Form Fields - Step 3: Course Selection & Direct Photo Snap
   const [chosenCourseId, setChosenCourseId] = useState(selectedCourseId);
-  const [batchTiming, setBatchTiming] = useState('सकाळी ११:०० ते दुपारी १:००');
   const [photoBase64, setPhotoBase64] = useState('');
   const [photoSource, setPhotoSource] = useState<'camera' | 'upload' | 'default'>('camera');
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -252,7 +250,7 @@ export const AdmissionForm: React.FC<AdmissionFormProps> = ({
       courseId: selectedCourse.id,
       courseName: selectedCourse.nameHi,
       courseDuration: selectedCourse.duration,
-      batchTiming,
+      batchTiming: 'Not Applicable',
       photoBase64: photoBase64 || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
       photoSource,
       appliedAt: new Date().toISOString(),
@@ -822,103 +820,53 @@ export const AdmissionForm: React.FC<AdmissionFormProps> = ({
                 <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                   <div className="flex items-center gap-2 text-[#002244] font-black text-lg font-serif">
                     <Award className="w-5 h-5 text-[#003366]" />
-                    <span>{lang === 'hi' ? '३. कोर्स निवड, बॅच वेळ व थेट फोटो' : '3. Course Selection & Photo'}</span>
+                    <span>{lang === 'hi' ? '३. कोर्स व फोटो' : '3. Course & Photo'}</span>
                   </div>
                   <span className="text-xs bg-blue-50 text-[#003366] font-bold px-3 py-1 rounded-full border border-blue-200">
                     {lang === 'hi' ? 'टप्पा ३/४' : 'Step 3 of 4'}
                   </span>
                 </div>
 
-                {/* Course Selection Cards */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      {lang === 'hi' ? 'अधिकृत कोर्स निवडा (Select Course)' : 'Select Authorized Course'} <span className="text-red-500 font-bold">*</span>
+                      {lang === 'hi' ? 'निवडलेला कोर्स (Selected Course)' : 'Selected Course'} <span className="text-red-500 font-bold">*</span>
                     </label>
                     <button
                       type="button"
                       onClick={onOpenCourseCatalog}
-                      className="text-xs text-[#003366] hover:underline font-bold"
+                      className="text-xs text-[#003366] hover:underline font-bold self-start sm:self-auto"
                     >
-                      {lang === 'hi' ? 'सर्व १३ विषय अभ्यासक्रम पहा' : 'View Full Syllabus'}
+                      {lang === 'hi' ? 'अभ्यासक्रम पहा' : 'View Syllabus'}
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {COURSES.map(course => {
-                      const isSelected = chosenCourseId === course.id;
-                      return (
-                        <div
-                          key={course.id}
-                          onClick={() => setChosenCourseId(course.id)}
-                          className={`p-4 rounded-xl border cursor-pointer transition relative flex flex-col justify-between ${
-                            isSelected
-                              ? 'bg-blue-50/70 border-[#003366] ring-2 ring-[#003366] shadow-sm text-[#002244]'
-                              : 'bg-slate-50 border-slate-200 hover:border-slate-300 text-slate-700'
-                          }`}
-                        >
-                          {course.popular && (
-                            <span className="absolute -top-2.5 right-3 bg-[#e65100] text-white text-[9px] font-black px-2.5 py-0.5 rounded-full shadow-xs">
-                              {lang === 'hi' ? '★ सर्वाधिक पसंती' : '★ BESTSELLER'}
-                            </span>
-                          )}
-
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded">
-                                {course.duration}
-                              </span>
-                              <span className="text-[10px] text-emerald-700 font-bold">
-                                शासकीय सवलत
-                              </span>
-                            </div>
-
-                            <h4 className="font-bold text-slate-900 text-sm mt-1.5 leading-snug font-serif">
-                              {lang === 'hi' ? course.nameHi : course.name}
-                            </h4>
-                          </div>
-
-                          {/* Fees Comparison */}
-                          <div className="mt-3 pt-2.5 border-t border-slate-200 flex items-center justify-between">
-                            <div>
-                              <span className="text-[10px] text-slate-400 line-through">₹{course.originalFee.toLocaleString('en-IN')}</span>
-                              <div className="text-base font-black text-[#003366] font-mono">
-                                ₹{course.subsidizedFee.toLocaleString('en-IN')}{' '}
-                                <span className="text-[10px] font-normal text-slate-500">{lang === 'hi' ? '(एकूण फी)' : '(Total Fee)'}</span>
-                              </div>
-                            </div>
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isSelected ? 'bg-[#003366] text-white' : 'border border-slate-300'}`}>
-                              {isSelected && <Check className="w-3 h-3" />}
-                            </div>
-                          </div>
+                  <div
+                    className="p-4 rounded-2xl border border-[#003366]/20 bg-gradient-to-r from-blue-50 to-slate-50 shadow-sm"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] bg-slate-200 text-slate-800 font-bold px-2 py-0.5 rounded">
+                            {selectedCourse.duration}
+                          </span>
+                          <span className="text-[10px] text-emerald-700 font-bold">
+                            शासकीय सवलत
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        <h4 className="font-bold text-slate-900 text-base sm:text-lg leading-snug font-serif">
+                          {lang === 'hi' ? selectedCourse.nameHi : selectedCourse.name}
+                        </h4>
+                      </div>
 
-                {/* Batch Timing Selection */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#003366]" />
-                    <span>{lang === 'hi' ? 'बॅचची सोयीस्कर वेळ (Preferred Batch Timing)' : 'Preferred Batch Timing'} <span className="text-red-500 font-bold">*</span></span>
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {BATCH_TIMINGS.map(batch => (
-                      <button
-                        key={batch.id}
-                        type="button"
-                        onClick={() => setBatchTiming(batch.label)}
-                        className={`p-3 rounded-xl border text-xs font-semibold text-left transition flex items-center justify-between ${
-                          batchTiming === batch.label
-                            ? 'bg-blue-50 border-[#003366] text-[#002244] ring-1 ring-[#003366] font-bold'
-                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <span>{lang === 'hi' ? batch.labelHi : batch.label}</span>
-                        {batchTiming === batch.label && <CheckCircle2 className="w-3.5 h-3.5 text-[#003366]" />}
-                      </button>
-                    ))}
+                      <div className="text-left sm:text-right">
+                        <span className="text-[10px] text-slate-400 line-through block">₹{selectedCourse.originalFee.toLocaleString('en-IN')}</span>
+                        <div className="text-xl font-black text-[#003366] font-mono">
+                          ₹{selectedCourse.subsidizedFee.toLocaleString('en-IN')}
+                        </div>
+                        <span className="text-[10px] font-normal text-slate-500">{lang === 'hi' ? '(एकूण फी)' : '(Total Fee)'}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1079,7 +1027,6 @@ export const AdmissionForm: React.FC<AdmissionFormProps> = ({
                       {lang === 'hi' ? selectedCourse.nameHi : selectedCourse.name}
                     </div>
                     <div className="flex flex-wrap items-center justify-between text-xs text-slate-700 gap-2">
-                      <span><strong>बॅच वेळ:</strong> {batchTiming}</span>
                       <span className="text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
                         एकूण फी: ₹{selectedCourse.subsidizedFee.toLocaleString('en-IN')}/-
                       </span>
