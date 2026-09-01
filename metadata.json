@@ -1,0 +1,6 @@
+{
+  "name": "Princess Beauty Parlour Admission Portal",
+  "description": "Government Scheme Admission Open in Princess Beauty Parlour with live camera photo capture, subsidized fees, and instant student admission card generator.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

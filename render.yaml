@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: princess-beauty-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server:prod
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://yaps9143_db_user:FYNgp1oAhtbuvRa9@cluster0.wgqtlzv.mongodb.net?retryWrites=true&w=majority
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
